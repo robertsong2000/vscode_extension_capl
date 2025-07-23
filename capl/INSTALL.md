@@ -29,6 +29,7 @@ code --install-extension capl-1.0.0.vsix
 ✅ **文件支持**
 - `.capl` 文件
 - `.can` 文件
+- `.cin` 文件
 
 ✅ **编辑器功能**
 - 括号自动匹配和闭合
@@ -37,7 +38,7 @@ code --install-extension capl-1.0.0.vsix
 
 ## 使用方法
 
-1. 安装扩展后，创建或打开一个 `.capl` 或 `.can` 文件
+1. 安装扩展后，创建或打开一个 `.capl`、`.can` 或 `.cin` 文件
 2. VSCode会自动识别文件类型并应用CAPL语法高亮
 3. 您可以在 `examples/example.can` 文件中查看语法高亮效果
 
@@ -70,7 +71,7 @@ code --install-extension capl-1.0.0.vsix
 ## 故障排除
 
 ### 扩展未生效
-1. 确认文件扩展名为 `.capl` 或 `.can`
+1. 确认文件扩展名为 `.capl`、`.can` 或 `.cin`
 2. 重启VSCode
 3. 检查扩展是否已启用：`Ctrl+Shift+X` → 搜索 "capl"
 

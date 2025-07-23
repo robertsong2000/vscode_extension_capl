@@ -21,7 +21,7 @@
       {
         "id": "capl",
         "aliases": ["CAPL", "capl"],
-        "extensions": [".capl", ".can"],
+        "extensions": [".capl", ".can", ".cin"],
         "configuration": "./language-configuration.json"
       }
     ],

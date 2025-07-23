@@ -1,0 +1,49 @@
+/*
+ * CAPL Include File - canlib.cin
+ * 这是一个CAPL包含文件示例
+ * 通常包含函数声明、常量定义等
+ */
+
+// 常量定义
+#define MAX_BUFFER_SIZE 256
+#define CAN_ID_MASK 0x7FF
+#define DEFAULT_TIMEOUT 1000
+
+// 函数声明
+void initializeCANBus();
+int sendCANMessage(message msg);
+int receiveCANMessage(message* msg);
+void logMessage(char* text);
+
+// 全局变量声明
+extern int gBusStatus;
+extern timer gHeartbeatTimer;
+extern byte gBuffer[MAX_BUFFER_SIZE];
+
+// 枚举定义
+enum BusState {
+    BUS_OFFLINE = 0,
+    BUS_ONLINE = 1,
+    BUS_ERROR = 2
+};
+
+// 结构体定义（CAPL风格）
+typedef struct {
+    dword id;
+    byte dlc;
+    byte data[8];
+    dword timestamp;
+} CANFrame;
+
+// 宏定义
+#define LOG_INFO(msg) write("[INFO] %s", msg)
+#define LOG_ERROR(msg) write("[ERROR] %s", msg)
+#define GET_HIGH_BYTE(word) ((byte)((word >> 8) & 0xFF))
+#define GET_LOW_BYTE(word) ((byte)(word & 0xFF))
+
+// 条件编译
+#ifdef DEBUG_MODE
+    #define DEBUG_PRINT(msg) write("[DEBUG] %s", msg)
+#else
+    #define DEBUG_PRINT(msg)
+#endif
