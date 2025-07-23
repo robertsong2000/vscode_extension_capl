@@ -1,0 +1,135 @@
+/*
+ * 这是一个CAPL示例文件
+ * 用于测试语法高亮功能
+ */
+
+// 包含头文件
+#include <canlib.cin>
+
+// 变量定义
+variables
+{
+  int counter = 0;
+  float value = 3.14;
+  byte data[8];
+  message msg;
+  timer periodicTimer;
+  msTimer fastTimer;
+}
+
+// 初始化函数
+on start
+{
+  // 初始化变量
+  counter = 0;
+  value = 0.0;
+  
+  // 设置定时器
+  setTimer(periodicTimer, 1000); // 1秒定时器
+  setTimer(fastTimer, 100);      // 100毫秒定时器
+  
+  // 输出信息
+  write("CAPL程序已启动");
+}
+
+// 消息处理函数
+on message 0x100
+{
+  // 读取消息数据
+  byte id = this.byte(0);
+  word value = this.word(1);
+  
+  // 条件判断
+  if (id == 0x01)
+  {
+    // 处理数据
+    counter++;
+    write("接收到ID=0x01的消息，计数器值: %d", counter);
+    
+    // 发送响应消息
+    msg.id = 0x200;
+    msg.dlc = 8;
+    msg.byte(0) = 0x02;
+    msg.byte(1) = counter & 0xFF;
+    output(msg);
+  }
+  else if (id == 0x02)
+  {
+    // 处理其他类型的消息
+    write("接收到ID=0x02的消息，值: 0x%X", value);
+  }
+  else
+  {
+    // 默认处理
+    write("接收到未知ID的消息: 0x%X", id);
+  }
+}
+
+// 定时器处理函数
+on timer periodicTimer
+{
+  // 周期性任务
+  counter++;
+  write("定时器触发，计数器值: %d", counter);
+  
+  // 重新设置定时器
+  setTimer(periodicTimer, 1000);
+}
+
+// 毫秒定时器处理函数
+on msTimer fastTimer
+{
+  // 快速周期性任务
+  value += 0.1;
+  
+  // 条件检查
+  if (value > 10.0)
+  {
+    value = 0.0;
+    write("值已重置");
+  }
+  
+  // 重新设置定时器
+  setTimer(fastTimer, 100);
+}
+
+// 按键处理函数
+on key 'a'
+{
+  write("按下了'a'键");
+  
+  // 发送测试消息
+  msg.id = 0x300;
+  msg.dlc = 4;
+  msg.byte(0) = 0xAA;
+  msg.byte(1) = 0xBB;
+  msg.byte(2) = 0xCC;
+  msg.byte(3) = 0xDD;
+  output(msg);
+}
+
+// 环境变量变化处理函数
+on envvar "TestVar"
+{
+  write("环境变量'TestVar'已更改，新值: %f", getEnvVar("TestVar"));
+}
+
+// 自定义函数
+void processData(byte id, word data)
+{
+  // 局部变量
+  int result = 0;
+  
+  // 位运算
+  result = (data & 0xFF00) >> 8;
+  
+  // 循环结构
+  for (int i = 0; i < 8; i++)
+  {
+    // 数组操作
+    data[i] = (byte)(result & (1 << i));
+  }
+  
+  // 输出结果
+  write("处理结果: 0x%X", result);
+}

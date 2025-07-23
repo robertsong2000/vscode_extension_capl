@@ -1,0 +1,29 @@
+# 只保留 capl 目录，忽略其他文件
+# Vercel 部署文件
+.vercel/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# IDE 临时文件
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.temp
+
+# 日志文件
+*.log
