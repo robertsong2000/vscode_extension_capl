@@ -8,23 +8,48 @@
 #define MAX_BUFFER_SIZE 256
 #define CAN_ID_MASK 0x7FF
 #define DEFAULT_TIMEOUT 1000
+#define ENGINE_RPM_MAX 8000
+#define TRANSMISSION_GEARS 6
 
 // 函数声明
 void initializeCANBus();
 int sendCANMessage(message msg);
 int receiveCANMessage(message* msg);
 void logMessage(char* text);
+void resetSystem();
+int validateCANFrame(dword id, byte dlc);
+
+// 引擎相关函数
+void initializeEngine();
+float getEngineRPM();
+void setEngineRPM(float rpm);
+int getEngineStatus();
+
+// 变速箱相关函数
+void initializeTransmission();
+byte getCurrentGear();
+void setGear(byte gear);
+int isTransmissionReady();
 
 // 全局变量声明
 extern int gBusStatus;
 extern timer gHeartbeatTimer;
 extern byte gBuffer[MAX_BUFFER_SIZE];
+extern float gEngineRPM;
+extern byte gCurrentGear;
 
 // 枚举定义
 enum BusState {
     BUS_OFFLINE = 0,
     BUS_ONLINE = 1,
     BUS_ERROR = 2
+};
+
+enum EngineState {
+    ENGINE_OFF = 0,
+    ENGINE_IDLE = 1,
+    ENGINE_RUNNING = 2,
+    ENGINE_ERROR = 3
 };
 
 // 结构体定义（CAPL风格）
@@ -35,11 +60,21 @@ typedef struct {
     dword timestamp;
 } CANFrame;
 
+typedef struct {
+    float rpm;
+    byte gear;
+    int temperature;
+    byte status;
+} EngineData;
+
 // 宏定义
 #define LOG_INFO(msg) write("[INFO] %s", msg)
 #define LOG_ERROR(msg) write("[ERROR] %s", msg)
+#define LOG_DEBUG(msg) write("[DEBUG] %s", msg)
 #define GET_HIGH_BYTE(word) ((byte)((word >> 8) & 0xFF))
 #define GET_LOW_BYTE(word) ((byte)(word & 0xFF))
+#define RPM_TO_BYTE(rpm) ((byte)((rpm / ENGINE_RPM_MAX) * 255))
+#define BYTE_TO_RPM(b) ((float)(b * ENGINE_RPM_MAX) / 255.0)
 
 // 条件编译
 #ifdef DEBUG_MODE
@@ -47,3 +82,18 @@ typedef struct {
 #else
     #define DEBUG_PRINT(msg)
 #endif
+
+// 函数实现示例
+void initializeCANBus()
+{
+    gBusStatus = BUS_OFFLINE;
+    LOG_INFO("CAN总线初始化");
+}
+
+void resetSystem()
+{
+    gEngineRPM = 0.0;
+    gCurrentGear = 0;
+    gBusStatus = BUS_OFFLINE;
+    LOG_INFO("系统重置完成");
+}

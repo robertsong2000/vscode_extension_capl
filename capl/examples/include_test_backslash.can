@@ -1,0 +1,3 @@
+#include "..\..\common-libraries\test_global_variables.cin"
+
+// 测试反斜杠路径的#include语句跳转功能

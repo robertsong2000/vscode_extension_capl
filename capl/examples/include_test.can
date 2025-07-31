@@ -1,0 +1,38 @@
+/*
+ * CAPL测试文件 - 用于演示#include语句的跳转功能
+ * include_test.can
+ */
+
+#include <canlib.cin>
+#include "../examples/canlib.cin"
+
+// 宏定义
+#define MAX_RETRY_COUNT 5
+#define TIMEOUT_VALUE 1000
+
+// 变量定义
+variables
+{
+  int retryCounter = 0;
+  timer heartbeatTimer;
+}
+
+// 启动函数
+on start
+{
+  write("测试#include语句的跳转功能");
+  write("使用最大重试次数: %d", MAX_RETRY_COUNT); // 跳转到宏定义
+}
+
+// 定时器处理
+on timer heartbeatTimer
+{
+  retryCounter++; // 跳转到变量定义
+  if (retryCounter >= MAX_RETRY_COUNT) // 跳转到宏定义
+  {
+    retryCounter = 0;
+    write("重试计数器重置");
+  }
+  
+  setTimer(heartbeatTimer, TIMEOUT_VALUE); // 跳转到宏定义
+}

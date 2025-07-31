@@ -7,13 +7,13 @@
 1. 打开Visual Studio Code
 2. 按 `Ctrl+Shift+P` (Windows/Linux) 或 `Cmd+Shift+P` (macOS) 打开命令面板
 3. 输入 "Extensions: Install from VSIX..." 并选择该命令
-4. 选择生成的 `capl-1.0.0.vsix` 文件
+4. 选择生成的 `capl-0.3.0.vsix` 文件
 5. 重启VSCode以确保扩展正常加载
 
 ### 方法二：通过命令行安装
 
 ```bash
-code --install-extension capl-1.0.0.vsix
+code --install-extension capl-0.3.0.vsix
 ```
 
 ## 功能特性
@@ -35,12 +35,33 @@ code --install-extension capl-1.0.0.vsix
 - 括号自动匹配和闭合
 - 代码折叠
 - 自动缩进
+- 跳转到定义功能（包括#include文件跳转）
 
 ## 使用方法
 
 1. 安装扩展后，创建或打开一个 `.capl`、`.can` 或 `.cin` 文件
 2. VSCode会自动识别文件类型并应用CAPL语法高亮
 3. 您可以在 `examples/example.can` 文件中查看语法高亮效果
+
+### 跳转到定义功能
+
+扩展支持多种跳转到定义功能：
+
+1. **函数定义跳转**：按住 `Ctrl` (Windows/Linux) 或 `Cmd` (macOS) 并点击函数名
+2. **变量定义跳转**：按住 `Ctrl` (Windows/Linux) 或 `Cmd` (macOS) 并点击变量名
+3. **宏定义跳转**：按住 `Ctrl` (Windows/Linux) 或 `Cmd` (macOS) 并点击宏名
+4. **#include文件跳转**：按住 `Ctrl` (Windows/Linux) 或 `Cmd` (macOS) 并点击#include语句中的文件名
+
+对于#include文件跳转功能，扩展支持相对路径和绝对路径的文件搜索，同时支持正斜杠和反斜杠路径分隔符。例如：
+
+```capl
+#include "../common/test.cin"
+#include "..\..\common\test.cin"
+#include <canlib.cin>
+#include "./local_file.cin"
+```
+
+按住 `Cmd` (macOS) 或 `Ctrl` (Windows/Linux) 并点击文件名，即可跳转到对应的文件。
 
 ## 示例代码
 
@@ -82,8 +103,8 @@ code --install-extension capl-1.0.0.vsix
 
 ## 版本信息
 
-- 当前版本：1.0.0
-- 支持的VSCode版本：1.102.0及以上
+- 当前版本：0.3.0
+- 支持的VSCode版本：1.60.0及以上
 - 许可证：MIT
 
 ## 贡献和反馈

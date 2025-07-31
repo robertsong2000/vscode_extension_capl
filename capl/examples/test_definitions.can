@@ -1,0 +1,107 @@
+/*
+ * CAPL测试文件 - 用于演示跳转到定义功能
+ * test_definitions.can
+ */
+
+#include <canlib.cin>
+
+// 宏定义
+#define MAX_RETRY_COUNT 5
+#define TIMEOUT_VALUE 1000
+#define CAN_ID_ENGINE 0x100
+#define CAN_ID_TRANSMISSION 0x200
+
+// 变量定义
+variables
+{
+  int retryCounter = 0;
+  float engineSpeed = 0.0;
+  byte transmissionGear = 0;
+  message engineMessage;
+  message transmissionMessage;
+  timer heartbeatTimer;
+  msTimer fastTimer;
+}
+
+// 自定义函数定义
+void initializeSystem()
+{
+  retryCounter = 0;
+  engineSpeed = 0.0;
+  transmissionGear = 1;
+  
+  write("系统初始化完成");
+  setTimer(heartbeatTimer, TIMEOUT_VALUE);
+}
+
+int processEngineData(byte gear, float speed)
+{
+  if (speed > 0.0 && gear > 0)
+  {
+    engineSpeed = speed;
+    transmissionGear = gear;
+    return 1;
+  }
+  return 0;
+}
+
+void sendHeartbeat()
+{
+  engineMessage.id = CAN_ID_ENGINE;
+  engineMessage.dlc = 8;
+  engineMessage.byte(0) = 0xAA;
+  engineMessage.byte(1) = transmissionGear;
+  output(engineMessage);
+}
+
+// 启动函数
+on start
+{
+  initializeSystem(); // 跳转到函数定义
+  write("使用最大重试次数: %d", MAX_RETRY_COUNT); // 跳转到宏定义
+}
+
+// 消息处理
+on message CAN_ID_ENGINE
+{
+  byte gear = this.byte(1);
+  float speed = this.word(2) * 0.1;
+  
+  int result = processEngineData(gear, speed); // 跳转到函数定义
+  if (result == 1)
+  {
+    write("引擎数据处理成功，速度: %.1f, 档位: %d", engineSpeed, transmissionGear);
+  }
+}
+
+on message CAN_ID_TRANSMISSION
+{
+  transmissionGear = this.byte(0); // 跳转到变量定义
+  write("变速箱档位更新: %d", transmissionGear);
+}
+
+// 定时器处理
+on timer heartbeatTimer
+{
+  sendHeartbeat(); // 跳转到函数定义
+  
+  retryCounter++; // 跳转到变量定义
+  if (retryCounter >= MAX_RETRY_COUNT) // 跳转到宏定义
+  {
+    retryCounter = 0;
+    write("重试计数器重置");
+  }
+  
+  setTimer(heartbeatTimer, TIMEOUT_VALUE); // 跳转到宏定义
+}
+
+on msTimer fastTimer
+{
+  // 快速定时器处理
+  if (engineSpeed > 100.0) // 跳转到变量定义
+  {
+    write("高速运行模式");
+  }
+  
+  setTimer(fastTimer, 50);
+}
