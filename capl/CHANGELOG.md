@@ -13,6 +13,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - 修复相对路径#include语句无法正确跳转的问题
 - 修复#include文件路径解析逻辑，支持正确的相对路径计算
 
+### Improved
+- 优化大型工程中的搜索性能，添加更多排除路径（build、dist、out、.git等）
+- 限制搜索结果数量（最多50个文件）
+- 使用并行处理提高文件搜索效率
+
 ## [0.2.0] - 2024-12-20
 
 ### Added

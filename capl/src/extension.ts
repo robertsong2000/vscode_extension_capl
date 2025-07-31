@@ -99,8 +99,9 @@ class CaplDefinitionProvider implements vscode.DefinitionProvider {
 				// 相对路径
 				targetUri = vscode.Uri.joinPath(currentDir, includePath);
 			} else {
-				// 绝对路径或文件名，在工作区中搜索
-				const files = await vscode.workspace.findFiles(`**/${includePath}`, '**/node_modules/**', 1);
+				// 绝对路径或文件名，使用优化的排除模式
+				const excludePattern = '{**/node_modules/**,**/build/**,**/dist/**,**/out/**,**/.git/**,**/.vscode/**,**/coverage/**,**/temp/**,**/tmp/**,**/*.log,**/*.min.js}';
+				const files = await vscode.workspace.findFiles(`**/${includePath}`, excludePattern, 1);
 				if (files && files.length > 0) {
 					return new vscode.Location(files[0], new vscode.Position(0, 0));
 				}
@@ -112,8 +113,9 @@ class CaplDefinitionProvider implements vscode.DefinitionProvider {
 				await vscode.workspace.fs.stat(targetUri);
 				return new vscode.Location(targetUri, new vscode.Position(0, 0));
 			} catch (error) {
-				// 文件不存在，继续搜索工作区
-				const files = await vscode.workspace.findFiles(`**/${includePath}`, '**/node_modules/**', 1);
+				// 文件不存在，使用优化的排除模式继续搜索
+				const excludePattern = '{**/node_modules/**,**/build/**,**/dist/**,**/out/**,**/.git/**,**/.vscode/**,**/coverage/**,**/temp/**,**/tmp/**,**/*.log,**/*.min.js}';
+				const files = await vscode.workspace.findFiles(`**/${includePath}`, excludePattern, 1);
 				if (files && files.length > 0) {
 					return new vscode.Location(files[0], new vscode.Position(0, 0));
 				}
@@ -126,23 +128,26 @@ class CaplDefinitionProvider implements vscode.DefinitionProvider {
 	private async findDefinitionInWorkspace(word: string): Promise<vscode.Location[]> {
 		const locations: vscode.Location[] = [];
 		
-		// 搜索工作区中的所有CAPL文件
-		const files = await vscode.workspace.findFiles('**/*.{capl,can,cin}', '**/node_modules/**');
+		// 优化的排除模式，减少搜索范围
+		const excludePattern = '{**/node_modules/**,**/build/**,**/dist/**,**/out/**,**/.git/**,**/.vscode/**,**/coverage/**,**/temp/**,**/tmp/**,**/*.log,**/*.min.js}';
 		
-		for (const file of files) {
+		// 搜索工作区中的CAPL文件，限制结果数量
+		const files = await vscode.workspace.findFiles('**/*.{capl,can,cin}', excludePattern, 50);
+		
+		// 并行处理文件，提高性能
+		const promises = files.map(async (file) => {
 			try {
 				const document = await vscode.workspace.openTextDocument(file);
 				const position = this.findDefinition(document, word);
-				if (position) {
-					locations.push(new vscode.Location(file, position));
-				}
+				return position ? new vscode.Location(file, position) : null;
 			} catch (error) {
-				// 忽略无法打开的文件
 				console.log(`无法打开文件: ${file.fsPath}`);
+				return null;
 			}
-		}
-
-		return locations;
+		});
+		
+		const results = await Promise.all(promises);
+		return results.filter((location): location is vscode.Location => location !== null);
 	}
 }
 
